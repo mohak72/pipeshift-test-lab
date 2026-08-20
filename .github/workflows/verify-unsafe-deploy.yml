@@ -1,0 +1,57 @@
+# VALIDATE-002 T1/T10: every job here must be REFUSED by the classifier.
+#
+# SAFETY: these steps are also written to be harmless if they are ever
+# executed, which is the second line of defence behind the classifier itself.
+# There is no terraform configuration in this repository, no cluster to reach
+# and no secret to resolve, so each command fails within seconds having changed
+# nothing. If PipeShift ever runs this job, that is a bug — and this file is
+# built so the bug costs a failed step rather than an outage.
+name: Verify — must never run
+
+on:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+jobs:
+  terraform-apply:
+    name: Terraform apply
+    runs-on: ubuntu-latest
+    # Deploy verb: caught by the classifier.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply infrastructure
+        run: terraform apply -auto-approve
+
+  deploy-with-secrets:
+    name: Deploy using credentials
+    runs-on: ubuntu-latest
+    # Customer secrets: caught by the classifier. These do not exist in this
+    # repository, so they resolve to empty strings.
+    steps:
+      - name: Push image
+        env:
+          REGISTRY_TOKEN: ${{ secrets.NONEXISTENT_REGISTRY_TOKEN }}
+        run: echo "would deploy with '$REGISTRY_TOKEN'"
+
+  write-to-repo:
+    name: Commit back to the repository
+    runs-on: ubuntu-latest
+    # Write permissions: caught by the classifier.
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "would commit"
+
+  health-check:
+    name: Check the service responds
+    runs-on: ubuntu-latest
+    # Deliberately innocuous in every respect: no secrets, no write
+    # permissions, no deploy verb, and a name that says nothing about
+    # deployment. Its ONLY disqualification is that it needs a job we refused,
+    # so this exercises dependency propagation and nothing else.
+    needs: [terraform-apply]
+    steps:
+      - run: echo "would check health"

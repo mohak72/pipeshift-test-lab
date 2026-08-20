@@ -1,0 +1,32 @@
+# VALIDATE-002 T5/T6: a safe job that FAILS ON PURPOSE.
+#
+# This is the fixture the whole story needed and no real repository could
+# provide: a pipeline that genuinely does not work first time, in a repository
+# nobody minds breaking.
+#
+# The failure is deliberate and obvious in the log — `npm run tset` is a typo
+# for `npm run test`, exactly the class of mistake that costs a real engineer
+# two or three attempts. A model reading the log should be able to fix it.
+#
+# Ignores main so the default branch stays green: a red badge here should mean
+# something unexpected broke, not something working as designed.
+name: Verify — deliberately broken
+
+on:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run tests
+        run: npm run tset

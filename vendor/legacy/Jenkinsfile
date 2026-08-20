@@ -1,0 +1,3 @@
+// DECOY. Vendored third-party code — never a user's own source, so detection
+// must skip it entirely rather than reporting it at all.
+pipeline { agent any; stages { stage('Vendored') { steps { echo 'not ours' } } } }

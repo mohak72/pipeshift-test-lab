@@ -1,0 +1,12 @@
+{
+  "name": "pipeshift-test-lab",
+  "version": "1.0.0",
+  "description": "Test fixture for PipeShift pipeline migration",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "node -e \"console.log('built')\"",
+    "test": "node --test src/",
+    "lint": "node -e \"console.log('linted')\""
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,12 @@
+// Nested source pipeline: exercises monorepo naming. Must not collide with the
+// root Jenkinsfile when both are migrated.
+pipeline {
+    agent any
+    stages {
+        stage('Test API') {
+            steps {
+                sh 'npm test'
+            }
+        }
+    }
+}

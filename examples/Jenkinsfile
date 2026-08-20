@@ -1,0 +1,12 @@
+// DECOY. Lives in examples/, so detection reports it as low confidence and
+// does not migrate it without being asked.
+pipeline {
+    agent any
+    stages {
+        stage('Example') {
+            steps {
+                echo 'This is documentation, not a pipeline anyone runs.'
+            }
+        }
+    }
+}

@@ -1,0 +1,37 @@
+# Source pipeline for migration testing.
+stages:
+  - install
+  - test
+  - build
+
+default:
+  image: node:20
+
+variables:
+  APP_NAME: pipeshift-test-lab
+
+install:
+  stage: install
+  script:
+    - npm ci || npm install
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 hour
+
+lint:
+  stage: test
+  script:
+    - npm run lint
+
+unit-test:
+  stage: test
+  script:
+    - npm test
+
+build:
+  stage: build
+  script:
+    - npm run build
+  only:
+    - main

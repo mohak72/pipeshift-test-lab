@@ -1,0 +1,34 @@
+# Source pipeline for migration testing.
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  APP_NAME: pipeshift-test-lab
+
+stages:
+  - stage: Test
+    jobs:
+      - job: LintAndTest
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '20.x'
+          - script: npm ci || npm install
+            displayName: Install
+          - script: npm run lint
+            displayName: Lint
+          - script: npm test
+            displayName: Unit tests
+
+  - stage: Build
+    dependsOn: Test
+    jobs:
+      - job: Build
+        steps:
+          - script: npm run build
+            displayName: Build

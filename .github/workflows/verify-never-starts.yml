@@ -1,0 +1,21 @@
+# VALIDATE-002 T7: a workflow that a push can never trigger.
+#
+# The outcome must be COULD_NOT_VERIFY, never FAILED. A pipeline that only runs
+# on a schedule is not broken just because our trial push did not start it, and
+# reporting it as broken would be the single most misleading thing this feature
+# could do.
+name: Verify — never starts on push
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm test
