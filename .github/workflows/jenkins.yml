@@ -28,7 +28,7 @@ jobs:
         run: npm ci || npm install
 
       - name: Cache node modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -36,7 +36,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Upload node_modules
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: node-modules
           path: node_modules
@@ -57,7 +57,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Download node_modules
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: node-modules
           path: node_modules
@@ -80,7 +80,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Download node_modules
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: node-modules
           path: node_modules
@@ -103,7 +103,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Download node_modules
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: node-modules
           path: node_modules
