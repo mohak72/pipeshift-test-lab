@@ -37,13 +37,6 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci || npm install
 
-      - name: Upload node_modules
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-modules
-          path: node_modules
-          retention-days: 1
-
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -58,11 +51,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
+      - name: Restore node modules
+        uses: actions/cache@v4
         with:
-          name: node-modules
           path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Run lint
         run: npm run lint
@@ -81,11 +76,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
+      - name: Restore node modules
+        uses: actions/cache@v4
         with:
-          name: node-modules
           path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Run tests
         run: npm test
@@ -104,11 +101,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
+      - name: Restore node modules
+        uses: actions/cache@v4
         with:
-          name: node-modules
           path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Build application
         run: npm run build
