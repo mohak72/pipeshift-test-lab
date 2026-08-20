@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   APP_NAME: pipeshift-test-lab
@@ -11,93 +12,72 @@ env:
 jobs:
   install:
     runs-on: ubuntu-latest
+    container:
+      image: node:20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Cache node modules
-        uses: actions/cache@v3
-        id: cache-node-modules
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
+      
       - name: Install dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci || npm install
+      
+      - name: Upload node_modules
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules/
+          retention-days: 1
 
   lint:
     runs-on: ubuntu-latest
+    container:
+      image: node:20
     needs: install
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      
+      - name: Download node_modules
+        uses: actions/download-artifact@v4
         with:
-          node-version: '20'
-
-      - name: Restore node modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
+          name: node-modules
+          path: node_modules/
+      
       - name: Run lint
         run: npm run lint
 
   unit-test:
     runs-on: ubuntu-latest
+    container:
+      image: node:20
     needs: install
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      
+      - name: Download node_modules
+        uses: actions/download-artifact@v4
         with:
-          node-version: '20'
-
-      - name: Restore node modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
+          name: node-modules
+          path: node_modules/
+      
       - name: Run tests
         run: npm test
 
   build:
     runs-on: ubuntu-latest
+    container:
+      image: node:20
     needs: [lint, unit-test]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      
+      - name: Download node_modules
+        uses: actions/download-artifact@v4
         with:
-          node-version: '20'
-
-      - name: Restore node modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
+          name: node-modules
+          path: node_modules/
+      
       - name: Build application
         run: npm run build
