@@ -21,10 +21,8 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Install dependencies
-        run: npm ci || npm install
-      
       - name: Cache node modules
+        id: cache-node-modules
         uses: actions/cache@v3
         with:
           path: node_modules
@@ -32,12 +30,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       
-      - name: Upload node_modules
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-modules
-          path: node_modules
-          retention-days: 1
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci || npm install
 
   lint:
     needs: checkout-and-install
@@ -56,11 +51,13 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
+      - name: Cache node modules
+        uses: actions/cache@v3
         with:
-          name: node-modules
           path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       
       - name: Lint
         run: npm run lint
@@ -82,11 +79,13 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
+      - name: Cache node modules
+        uses: actions/cache@v3
         with:
-          name: node-modules
           path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       
       - name: Test
         run: npm test
@@ -108,11 +107,13 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
+      - name: Cache node modules
+        uses: actions/cache@v3
         with:
-          name: node-modules
           path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       
       - name: Build
         run: npm run build
