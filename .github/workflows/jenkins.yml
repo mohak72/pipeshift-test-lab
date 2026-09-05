@@ -1,0 +1,127 @@
+name: pipeshift-test-lab CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checkout-and-install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_NAME: pipeshift-test-lab
+      NODE_VERSION: '20'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Cache node modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci || npm install
+
+  lint:
+    needs: checkout-and-install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_NAME: pipeshift-test-lab
+      NODE_VERSION: '20'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Lint
+        run: npm run lint
+
+  test:
+    needs: checkout-and-install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_NAME: pipeshift-test-lab
+      NODE_VERSION: '20'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Test
+        run: npm test
+
+  build:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_NAME: pipeshift-test-lab
+      NODE_VERSION: '20'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Pipeline succeeded
+        if: success()
+        run: echo 'Pipeline succeeded'
+      
+      - name: Pipeline failed
+        if: failure()
+        run: echo 'Pipeline failed'
